@@ -2,17 +2,15 @@ version 5.247.4
 
 source https://api.nuget.org/v3/index.json
 
-storage: none
+storage: packages
 framework: netcoreapp3.1, netstandard2.0, netstandard2.1
 
-nuget Argu
 nuget FSharp.Core
-nuget Expecto
-nuget FsCheck 2.14.0
-nuget Expecto.FsCheck
+nuget Argu
 nuget LibGit2Sharp
+
+nuget Microsoft.NET.Test.SDK
 nuget xunit
-nuget xunit.runner.console
 nuget xunit.runner.visualstudio
 
 group Docs
@@ -44,3 +42,4 @@ group Build
   nuget Fake.IO.FileSystem
   nuget Fake.DotNet.MsBuild
   nuget Fake.Api.GitHub
+  nuget Fake.DotNet.Testing.XUnit2

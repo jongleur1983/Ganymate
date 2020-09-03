@@ -15,6 +15,7 @@ open Fake.IO.FileSystemOperators
 open Fake.IO.Globbing.Operators
 open Fake.Core.TargetOperators
 open Fake.Api
+open Fake.DotNet.Testing
 
 // --------------------------------------------------------------------------------------
 // Information about the project to be used at NuGet and in AssemblyInfo files
@@ -44,6 +45,8 @@ System.Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
 let changelogFilename = "CHANGELOG.md"
 let changelog = Changelog.load changelogFilename
 let latestEntry = changelog.LatestEntry
+
+let configuration = Environment.environVarOrDefault "Configuration" "Release"
 
 // Helper function to remove blank lines
 let isEmptyChange = function
@@ -93,7 +96,7 @@ Target.create "Build" (fun _ ->
 )
 
 Target.create "Test" (fun _ ->
-    exec "dotnet"  @"run --project .\tests\Ganymate.UnitTests\Ganymate.UnitTests.fsproj" "."
+    exec "dotnet" "test" "."
 )
 
 Target.create "Docs" (fun _ ->
