@@ -13,6 +13,20 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{DDCA53F5
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Ganymate.UnitTests", "tests\Ganymate.UnitTests\Ganymate.UnitTests.fsproj", "{04410448-2C89-48B9-AB7A-54FAC8CBDB0C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{8BB9CC1E-66F5-4E7B-B4CF-88240CE3D09A}"
+ProjectSection(SolutionItems) = preProject
+	.gitattributes = .gitattributes
+	.gitignore = .gitignore
+	build.fsx = build.fsx
+	CHANGELOG.md = CHANGELOG.md
+	CONTRIBUTING.md = CONTRIBUTING.md
+	global.json = global.json
+	LICENSE.md = LICENSE.md
+	paket.dependencies = paket.dependencies
+	paket.lock = paket.lock
+	README.md = README.md
+EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

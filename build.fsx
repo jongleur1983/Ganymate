@@ -1,6 +1,9 @@
 // --------------------------------------------------------------------------------------
 // FAKE build script
 // --------------------------------------------------------------------------------------
+
+#nowarn "52"
+
 #r "paket: groupref build //"
 #load ".fake/build.fsx/intellisense.fsx"
 
@@ -206,3 +209,5 @@ Target.create "Release" DoNothing
   ==> "Release"
 
 Target.runOrDefault "Default"
+
+printfn "\nFinished %s\n\n" (System.DateTime.Now.ToString "HH:mm:ss")
