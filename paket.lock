@@ -409,7 +409,7 @@ NUGET
       System.Runtime.Handles (>= 4.3)
 
 GROUP Docs
-STORAGE: SYMLINK
+STORAGE: PACKAGES
 RESTRICTION: == netstandard2.0
 NUGET
   remote: https://api.nuget.org/v3/index.json
