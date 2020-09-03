@@ -5,6 +5,8 @@ open System.IO
 
 open Argu
 
+open Ganymate
+
 module Program =
     let printVersion () =
         let productName, version =
@@ -47,6 +49,11 @@ module Program =
                     match arg with
                     | Directory _ -> "The directory containing the Git repository"
 
+    type ExitCode =
+        | Ok = 0
+        | NoDirectory = 1
+        | NoRepository = 2
+
     [<EntryPoint>]
     let main argv =
         let parser =
@@ -63,8 +70,14 @@ module Program =
                 | "." -> Directory.GetCurrentDirectory()
                 | directory -> directory
 
-        if Directory.Exists directory
-        then printfn "Showing commits in %s" directory
-        else printfn "Directory %s does not exist" directory
+        let exitCode, output =
+            if Directory.Exists directory
+            then
+                if GitRepository.isGitRepository directory
+                then ExitCode.Ok, sprintf "Showing commits in %s" directory
+                else ExitCode.NoRepository, sprintf "Directory %s is not a Git repository" directory
+            else ExitCode.NoDirectory, sprintf "%s is not a directory" directory
 
-        0
+        printfn "%s" output
+
+        int exitCode
