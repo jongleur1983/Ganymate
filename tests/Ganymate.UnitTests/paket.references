@@ -2,3 +2,6 @@ FSharp.Core
 Expecto
 FsCheck
 Expecto.FsCheck
+xunit
+xunit.runner.visualstudio
+xunit.runner.console
