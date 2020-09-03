@@ -74,7 +74,7 @@ module Program =
             if Directory.Exists directory
             then
                 if GitRepository.isGitRepository directory
-                then ExitCode.Ok, sprintf "Showing commits in %s" directory
+                then ExitCode.Ok, sprintf "Showing commits in %s; HEAD is %s" directory (GitRepository.getHead directory)
                 else ExitCode.NoRepository, sprintf "Directory %s is not a Git repository" directory
             else ExitCode.NoDirectory, sprintf "%s is not a directory" directory
 
