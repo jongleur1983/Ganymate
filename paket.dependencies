@@ -9,9 +9,15 @@ nuget FSharp.Core
 nuget Argu
 nuget LibGit2Sharp
 
-nuget Microsoft.NET.Test.SDK
-nuget xunit
-nuget xunit.runner.visualstudio
+group Test
+  source https://api.nuget.org/v3/index.json
+
+  framework: netcoreapp3.1
+  storage: packages
+
+  nuget Microsoft.NET.Test.SDK
+  nuget xunit
+  nuget xunit.runner.visualstudio
 
 group Docs
   source https://api.nuget.org/v3/index.json
