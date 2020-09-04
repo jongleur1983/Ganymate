@@ -54,6 +54,12 @@ module Program =
         | NoDirectory = 1
         | NoRepository = 2
 
+    let getRepositoryInfo directory =
+        [
+            sprintf "Showing commits in %s" directory
+            sprintf "HEAD is %s" (GitRepository.getHead directory)
+        ]
+        
     [<EntryPoint>]
     let main argv =
         let parser =
@@ -74,10 +80,11 @@ module Program =
             if Directory.Exists directory
             then
                 if GitRepository.isGitRepository directory
-                then ExitCode.Ok, sprintf "Showing commits in %s; HEAD is %s" directory (GitRepository.getHead directory)
-                else ExitCode.NoRepository, sprintf "Directory %s is not a Git repository" directory
-            else ExitCode.NoDirectory, sprintf "%s is not a directory" directory
+                then ExitCode.Ok, getRepositoryInfo directory
+                else ExitCode.NoRepository, [ sprintf "Directory %s is not a Git repository" directory ]
+            else ExitCode.NoDirectory, [ sprintf "%s is not a directory" directory ]
 
-        printfn "%s" output
-
+        output
+        |> List.iter (printfn "%s")
+        
         int exitCode
