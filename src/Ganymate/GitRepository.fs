@@ -7,4 +7,4 @@ module GitRepository =
     let getHead directory =
         use repository = new LibGit2Sharp.Repository(directory)
 
-        repository.Head.Tip.Sha
+        repository.Head.FriendlyName
