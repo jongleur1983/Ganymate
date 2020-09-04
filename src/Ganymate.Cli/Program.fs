@@ -43,11 +43,13 @@ module Program =
     [<NoAppSettings>]
     type CliArgument =
         | [<MainCommand>] Directory of string
+        | [<AltCommandLine("-v")>] Verbose
         with
             interface IArgParserTemplate with
                 member arg.Usage =
                     match arg with
                     | Directory _ -> "The directory containing the Git repository"
+                    | Verbose -> "Show additional output for debugging and similar"
 
     type ExitCode =
         | Ok = 0
@@ -59,32 +61,79 @@ module Program =
             sprintf "Showing commits in %s" directory
             sprintf "HEAD is %s" (GitRepository.getHead directory)
         ]
+    
+    type CommandLineParameters =
+        {
+            IsValid: bool
+            Directory: string
+            IsVerbose: bool
+            ShowHelp: bool
+        } with
+            static member Empty =
+                {
+                    IsValid = false
+                    Directory = ""
+                    IsVerbose = false
+                    ShowHelp = false
+                }
         
+        
+    let rec collectCommandLineParameters remainingArguments parameters =
+        match remainingArguments with
+        | head :: tail ->
+            let parameters = 
+                match head with
+                | Directory directory -> { parameters with Directory = directory }
+                | Verbose -> { parameters with IsVerbose = true }
+            
+            collectCommandLineParameters tail parameters
+        | [] ->
+            match parameters.Directory with
+            | "" | "." ->
+                { parameters with Directory = Directory.GetCurrentDirectory() }
+            | _ -> parameters
+        
+    let processCommandLineArguments (parser: ArgumentParser<CliArgument>) argv =
+        let results = parser.ParseCommandLine argv
+        let cliArguments = results.GetAllResults()
+        
+        if results.IsUsageRequested
+        then { CommandLineParameters.Empty with ShowHelp = true }
+        else
+            CommandLineParameters.Empty
+            |> collectCommandLineParameters cliArguments
+        
+    let (|Repository|Directory|NoDirectory|) directory =
+        if Directory.Exists directory
+        then
+            if GitRepository.isGitRepository directory
+            then Repository
+            else Directory
+        else NoDirectory        
+
     [<EntryPoint>]
     let main argv =
         let parser =
             ArgumentParser.Create<CliArgument>(
                 programName = "Ganymate",
+                helpTextMessage = "Help requested",
                 errorHandler = GanymateExiter())
-
-        let results = parser.ParseCommandLine argv
-
-        printfn "Got parse results %A" <| results.GetAllResults()
-        let directory =
-            results.GetResult(Directory, defaultValue = ".")
-            |> function
-                | "." -> Directory.GetCurrentDirectory()
-                | directory -> directory
-
+        let parameters = processCommandLineArguments parser argv
+        
+        if parameters.IsVerbose then printfn "Got parse results %A" ()
+        
         let exitCode, output =
-            if Directory.Exists directory
-            then
-                if GitRepository.isGitRepository directory
-                then ExitCode.Ok, getRepositoryInfo directory
-                else ExitCode.NoRepository, [ sprintf "Directory %s is not a Git repository" directory ]
-            else ExitCode.NoDirectory, [ sprintf "%s is not a directory" directory ]
+            if parameters.ShowHelp
+            then ExitCode.Ok, [ parser.PrintUsage() ]
+            else
+                match parameters.Directory with
+                | Repository ->
+                    ExitCode.Ok, getRepositoryInfo parameters.Directory
+                | Directory ->
+                    ExitCode.NoRepository, [ sprintf "Directory %s is not a Git repository" parameters.Directory ]
+                | NoDirectory ->
+                    ExitCode.NoDirectory, [ sprintf "Directory %s is not a directory" parameters.Directory ]
 
-        output
-        |> List.iter (printfn "%s")
+        output |> List.iter (printfn "%s")
         
         int exitCode
