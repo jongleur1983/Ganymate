@@ -10,6 +10,8 @@ nuget Argu
 nuget LibGit2Sharp
 nuget Veldrid
 nuget Veldrid.ImGui
+nuget Veldrid.SPIRV
+nuget Veldrid.StartupUtilities
 
 group Test
   source https://api.nuget.org/v3/index.json

@@ -95,6 +95,12 @@ NUGET
       NativeLibraryLoader (>= 1.0.10)
       System.Numerics.Vectors (>= 4.4)
       System.Runtime.CompilerServices.Unsafe (>= 4.4)
+    Veldrid.SPIRV (1.0.13)
+      System.Runtime.CompilerServices.Unsafe (>= 4.4)
+      Veldrid (>= 4.6.1)
+    Veldrid.StartupUtilities (4.8)
+      Veldrid (>= 4.8)
+      Veldrid.SDL2 (>= 4.8)
     Vk (1.0.22)
       NETStandard.Library (>= 1.6.1)
 
