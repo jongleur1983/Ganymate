@@ -112,6 +112,14 @@ module Program =
         [
             sprintf "Showing commits in %s" directory
             sprintf "HEAD is %s" (GitRepository.getHead directory)
+
+            ""
+
+            yield!
+                directory
+                |> GitRepository.readCommits
+                |> Seq.map (fun commit ->
+                    sprintf "%s %s %s %s" commit.Sha.[0..7] (commit.Committer.Date.ToString "s") commit.Author.Name commit.MessageShort)
         ]
 
     [<EntryPoint>]
