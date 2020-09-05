@@ -31,3 +31,9 @@ type GitRepositoryTests(testOutputHelper: ITestOutputHelper) =
         let path = Environment.GetFolderPath Environment.SpecialFolder.Personal
         let actual = GitRepository.isGitRepository path
         Assert.False(actual)
+        
+    [<Fact>]
+    let emptyGitRepositoryHasNoCommits () =
+        let path = ensureTestRepositoryExists ()
+        let commits = GitRepository.getCommits path
+        Assert.Empty(commits)
