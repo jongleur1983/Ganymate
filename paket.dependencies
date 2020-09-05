@@ -8,6 +8,8 @@ framework: netcoreapp3.1, netstandard2.0, netstandard2.1
 nuget FSharp.Core
 nuget Argu
 nuget LibGit2Sharp
+nuget Veldrid
+nuget Veldrid.ImGui
 
 group Test
   source https://api.nuget.org/v3/index.json
