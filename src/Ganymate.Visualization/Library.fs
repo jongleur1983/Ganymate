@@ -38,7 +38,8 @@ module Program =
             
         window.add_Resized (fun () ->
             gd.ResizeMainWindow(uint32 window.Width, uint32 window.Height))
-        let mutable lastFrame = sw.ElapsedTicks 
+        let mutable lastFrame = sw.ElapsedTicks
+        let mutable isClicked = false
 
         while window.Exists do
             let cl = gd.ResourceFactory.CreateCommandList()
@@ -52,6 +53,7 @@ module Program =
             
             ImGui.SetNextWindowSize(Vector2(float32 (window.Width), float32 window.Height * 0.25f))
             ImGui.SetNextWindowPos(Vector2(float32 0, float32 window.Height * 0.75f), ImGuiCond.Always)
+
             ImGui.Begin(
                 "main",
                 ImGuiWindowFlags.NoMove
@@ -60,8 +62,21 @@ module Program =
                 ||| ImGuiWindowFlags.NoResize)
             |> ignore
 
-            ImGui.Text(sprintf "FPS %.2f" frameRate)
-            ImGui.End()            
+            let text = sprintf "FPS %.2f" frameRate
+                
+            ImGui.Text(text)
+
+            ImGui.SetNextWindowPos(Vector2(10.f, 20.f))
+            ImGui.Separator()
+            ImGui.Indent 25.f
+
+            ImGui.Button("test")
+            let isClickedNew = ImGui.IsItemClicked ImGuiMouseButton.Left
+            isClicked <- isClickedNew || isClicked
+
+            ImGui.Text(isClicked.ToString())
+
+            ImGui.End()
             
             cl.Begin()
             cl.SetFramebuffer(gd.MainSwapchain.Framebuffer)
