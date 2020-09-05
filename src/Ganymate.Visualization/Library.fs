@@ -1,5 +1,6 @@
 ﻿namespace Ganymate.Visualization
 
-module Say =
-    let hello name =
-        printfn "Hello %s" name
+module Program =
+    [<EntryPoint>]
+    let main argv =
+        0
