@@ -35,18 +35,23 @@ module Program =
                 window.Height
             )
         let sw = Stopwatch.StartNew()
-        let mutable lastFrame = sw.ElapsedMilliseconds 
             
         window.add_Resized (fun () ->
             gd.ResizeMainWindow(uint32 window.Width, uint32 window.Height))
+        let mutable lastFrame = sw.ElapsedTicks 
 
         while window.Exists do
             let cl = gd.ResourceFactory.CreateCommandList()
             let events = window.PumpEvents()
             
-            gui.Update(float32 (sw.ElapsedMilliseconds - lastFrame), events)
-            ImGui.SetNextWindowSize(Vector2(float32 (window.Width/2), float32 window.Height))
-            ImGui.SetNextWindowPos(Vector2(float32 0,float32 0), ImGuiCond.Always)
+            let currentFrame = sw.ElapsedTicks
+            let elapsedTime = currentFrame - lastFrame
+            let frameRate = 1000000.0f / float32 elapsedTime
+            
+            gui.Update(float32 elapsedTime, events)
+            
+            ImGui.SetNextWindowSize(Vector2(float32 (window.Width), float32 window.Height * 0.25f))
+            ImGui.SetNextWindowPos(Vector2(float32 0, float32 window.Height * 0.75f), ImGuiCond.Always)
             ImGui.Begin(
                 "main",
                 ImGuiWindowFlags.NoMove
@@ -55,7 +60,7 @@ module Program =
                 ||| ImGuiWindowFlags.NoResize)
             |> ignore
 
-            ImGui.Text "There's text!"
+            ImGui.Text(sprintf "FPS %.2f" frameRate)
             ImGui.End()            
             
             cl.Begin()
@@ -70,4 +75,6 @@ module Program =
             
             gd.SubmitCommands cl
             gd.SwapBuffers()
+            
+            lastFrame <- currentFrame
         0
