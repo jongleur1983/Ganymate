@@ -1,4 +1,6 @@
+FSharp.Core
 Veldrid
 Veldrid.ImGui
 Veldrid.StartupUtilities
 Veldrid.SPIRV
+Microsoft.DotNet.PlatformAbstractions
