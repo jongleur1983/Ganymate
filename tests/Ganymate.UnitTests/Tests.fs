@@ -1,11 +1,33 @@
 module Tests
 
+open System
+open System.IO
+
 open Xunit
 
-[<Fact>]
-let xunitTest () =
-    let actual = "Hello Ganymate"
+open Ganymate
+open Xunit.Abstractions
 
-    let expected = "Hello Ganymate"
+type GitRepositoryTests(testOutputHelper: ITestOutputHelper) = 
 
-    Assert.Equal(expected, actual)
+    let ensureTestRepositoryExists () =
+        let path = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName())
+        Directory.CreateDirectory path
+        LibGit2Sharp.Repository.Init(path)
+        
+        sprintf "Repository exists in '%s'" path
+        |> testOutputHelper.WriteLine
+        
+        path
+
+    [<Fact>]
+    let gitRepositoryIsValid () =
+        let path = ensureTestRepositoryExists ()
+        let actual = GitRepository.isGitRepository path
+        Assert.True(actual)
+
+    [<Fact>]
+    let gitRepositoryIsNotValid () =
+        let path = Environment.GetFolderPath Environment.SpecialFolder.Personal
+        let actual = GitRepository.isGitRepository path
+        Assert.False(actual)
