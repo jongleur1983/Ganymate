@@ -62,7 +62,7 @@ module Program =
                 ||| ImGuiWindowFlags.NoResize)
             |> ignore
 
-            let text = sprintf "FPS %.2f" frameRate
+            let text = sprintf "FPS %6.2f" frameRate
                 
             ImGui.Text(text)
 
