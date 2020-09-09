@@ -41,8 +41,8 @@ module Program =
         let mutable lastFrame = sw.ElapsedTicks
         let mutable isClicked = false
 
+        let cl = gd.ResourceFactory.CreateCommandList()
         while window.Exists do
-            let cl = gd.ResourceFactory.CreateCommandList()
             let events = window.PumpEvents()
             
             let currentFrame = sw.ElapsedTicks
