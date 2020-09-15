@@ -22,12 +22,27 @@ module Program =
         window.BorderVisible <-true
         window
 
-    let drawFrame (window:Sdl2.Sdl2Window) sw (gui:ImGuiRenderer) isClicked (cl:CommandList) (gd:GraphicsDevice) elapsedTime =
-        let events = window.PumpEvents()
+    type Infra =
+        {
+            window : Sdl2.Sdl2Window;
+            gui : ImGuiRenderer;
+            cl : CommandList;
+            gd : GraphicsDevice;
+            sw : Stopwatch;
+        }
+
+    type State =
+        {
+            isClicked : Option<int>
+            lastFrame : int64
+        }
+
+    let drawFrame (infrastructure:Infra) isClicked elapsedTime =
+        let events = infrastructure.window.PumpEvents()
         let frameRate = 1000000.0f / float32 elapsedTime
-        gui.Update(float32 elapsedTime, events)
-        ImGui.SetNextWindowSize(Vector2(float32 (window.Width), float32 window.Height * 0.25f))
-        ImGui.SetNextWindowPos(Vector2(float32 0, float32 window.Height * 0.75f), ImGuiCond.Always)
+        infrastructure.gui.Update(float32 elapsedTime, events)
+        ImGui.SetNextWindowSize(Vector2(float32 (infrastructure.window.Width), float32 infrastructure.window.Height * 0.25f))
+        ImGui.SetNextWindowPos(Vector2(float32 0, float32 infrastructure.window.Height * 0.75f), ImGuiCond.Always)
 
         ImGui.Begin(
             "main",
@@ -54,40 +69,43 @@ module Program =
         let isJustClicked = ImGui.IsItemClicked ImGuiMouseButton.Left
         ImGui.End()
 
-        cl.Begin()
-        cl.SetFramebuffer(gd.MainSwapchain.Framebuffer)
+        infrastructure.cl.Begin()
+        infrastructure.cl.SetFramebuffer(infrastructure.gd.MainSwapchain.Framebuffer)
 
         if ImGui.GetIO().WantCaptureMouse
-        then cl.ClearColorTarget(uint32 0, RgbaFloat.Black)
-        else cl.ClearColorTarget(uint32 0, RgbaFloat.CornflowerBlue)
+        then infrastructure.cl.ClearColorTarget(uint32 0, RgbaFloat.Black)
+        else infrastructure.cl.ClearColorTarget(uint32 0, RgbaFloat.CornflowerBlue)
 
-        gui.Render (gd, cl)
-        cl.End()
+        infrastructure.gui.Render (infrastructure.gd, infrastructure.cl)
+        infrastructure.cl.End()
 
-        gd.SubmitCommands cl
-        gd.SwapBuffers()
+        infrastructure.gd.SubmitCommands infrastructure.cl
+        infrastructure.gd.SwapBuffers()
         isJustClicked
 
 
-    let rec drawFrameOrExit (sw:Stopwatch) isClicked (window:Sdl2.Sdl2Window)  gui cl gd lastFrame =
-        if not window.Exists
+    let rec drawFrameOrExit infrastructure state =
+        if not infrastructure.window.Exists
         then 1
         else
             // actual drawing code
-            let currentFrame = sw.ElapsedTicks
-            let elapsedTime = currentFrame - lastFrame
+            let currentFrame = infrastructure.sw.ElapsedTicks
+            let elapsedTime = currentFrame - state.lastFrame
 
-            let isJustClicked = drawFrame window sw gui isClicked cl gd elapsedTime
-            let isClickedNew =
-                match isClicked with
-                | Some 0 -> None
-                | Some x -> Some (x - 1)
-                | None ->
-                    if isJustClicked
-                    then Some 20_000
-                    else None
+            let isJustClicked = drawFrame infrastructure state.isClicked elapsedTime
 
-            drawFrameOrExit sw isClickedNew window gui cl gd currentFrame
+            {
+                lastFrame = currentFrame
+                isClicked =
+                    match state.isClicked with
+                    | Some 0 -> None
+                    | Some x -> Some (x - 1)
+                    | None ->
+                        if isJustClicked
+                        then Some 20_000
+                        else None
+            }
+            |> drawFrameOrExit infrastructure
 
     [<EntryPoint>]
     let main argv =
@@ -105,9 +123,20 @@ module Program =
             
         window.add_Resized (fun () ->
             gd.ResizeMainWindow(uint32 window.Width, uint32 window.Height))
-        let mutable lastFrame = sw.ElapsedTicks
 
         let cl = gd.ResourceFactory.CreateCommandList()
-        let lastFrame = sw.ElapsedTicks
-        let isClicked = Some 10_000
-        drawFrameOrExit sw isClicked window gui cl gd lastFrame
+        let infra =
+            {
+                Infra.cl = cl
+                Infra.gd = gd
+                Infra.gui = gui
+                Infra.sw = sw
+                Infra.window = window
+            }
+        let state =
+            {
+                State.lastFrame = sw.ElapsedTicks
+                State.isClicked = Some 10_000
+            }
+
+        drawFrameOrExit infra state
